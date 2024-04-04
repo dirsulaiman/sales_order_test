@@ -11,14 +11,14 @@ _ReSharper*/
 *.resharper.user
 
 # Build results
-*[Dd]ebug/
-*[Rr]elease/
-*x64/
-*x86/
-*[Aa]rtifacts/
-*bin/
-*obj/
-*TestResults/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/x64/
+**/x86/
+**/[Aa]rtifacts/
+**/bin/
+**/obj/
+**/TestResults/
 
 # Visual Studio files
 .vs/
