@@ -17,8 +17,9 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> Get(string withPrices = "false")
+    public async Task<ActionResult<IEnumerable<Product>>> Get(string? withPrices = "false", DateTime? orderDate = null)
     {
+        orderDate = (orderDate ?? DateTime.Today).ToUniversalTime();
         if (withPrices == "true" || withPrices == "1")
         {
             var productsWithPrices = await _context.Product
@@ -27,13 +28,17 @@ public class ProductController : ControllerBase
                 {
                     ProductCode = p.ProductCode,
                     ProductName = p.ProductName,
-                    Prices = p.Prices.Select(price => new Price()
-                    {
-                        PriceId = price.PriceId,
-                        PriceValue = price.PriceValue,
-                        PriceValidateFrom = price.PriceValidateFrom,
-                        PriceValidateTo = price.PriceValidateTo
-                    }).ToList()
+                    Prices = p.Prices
+                        .OrderByDescending(price => price.PriceValidateFrom) // order by latest PriceValidateFrom
+                        .Where(price => price.PriceValidateFrom <= orderDate && 
+                                        price.PriceValidateTo >= orderDate)
+                        .Select(price => new Price()
+                        {
+                            PriceId = price.PriceId,
+                            PriceValue = price.PriceValue,
+                            PriceValidateFrom = price.PriceValidateFrom,
+                            PriceValidateTo = price.PriceValidateTo
+                        }).ToList()
                 })
                 .ToListAsync();
 
