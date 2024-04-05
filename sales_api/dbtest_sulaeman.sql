@@ -235,6 +235,8 @@ COPY public."Customer" ("CustId", "CustName") FROM stdin;
 COPY public."Price" ("PriceId", "ProductCode", "Price", "PriceValidateFrom", "PriceValidateTo") FROM stdin;
 2	st002	60000	2023-12-10	2024-08-01
 1	st002	55000	2023-01-01	2024-11-12
+3	eg001	111	2023-01-01	2024-08-01
+4	eg002	34132	2024-01-01	2024-12-12
 \.
 
 
@@ -256,6 +258,8 @@ eg002	Steelbuds
 
 COPY public."SalesOrder" ("SalesOrderNo", "OrderDate", "CustCode", "ProductCode", "Qty", "Price") FROM stdin;
 SO0015	2024-04-05 00:00:00	2	eg001	1	1.0
+SO0016	2024-04-05 00:00:00	string	string	0	0
+SO0017	2024-04-05 00:00:00	2	st001	12	0.0
 \.
 
 
@@ -265,6 +269,7 @@ SO0015	2024-04-05 00:00:00	2	eg001	1	1.0
 
 COPY public."SalesOrderInterface" ("SalesOrderNo", "Payload") FROM stdin;
 SO0015	{"CustId": "2", "OrderDetail": [{"Qty": 1, "ProductCode": "eg001"}], "SalesOrderNo": "SO0015"}
+SO0017	{"CustId": "2", "OrderDetail": [{"Qty": 12, "ProductCode": "st001"}], "SalesOrderNo": "SO0017"}
 \.
 
 
@@ -279,14 +284,14 @@ SELECT pg_catalog.setval('public."Customer_CustId_seq"', 3, true);
 -- Name: Price_PriceId_seq; Type: SEQUENCE SET; Schema: public; Owner: test
 --
 
-SELECT pg_catalog.setval('public."Price_PriceId_seq"', 2, true);
+SELECT pg_catalog.setval('public."Price_PriceId_seq"', 4, true);
 
 
 --
 -- Name: sales_order_sequence; Type: SEQUENCE SET; Schema: public; Owner: test
 --
 
-SELECT pg_catalog.setval('public.sales_order_sequence', 15, true);
+SELECT pg_catalog.setval('public.sales_order_sequence', 17, true);
 
 
 --

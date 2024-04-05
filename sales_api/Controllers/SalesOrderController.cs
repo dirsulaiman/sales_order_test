@@ -45,7 +45,7 @@ public class SalesOrderController : ControllerBase
                 {
                     try
                     {
-                        DateTime currentDate = DateTime.Today.ToUniversalTime();
+                        DateTime currentDate = DateTime.Today;
                         
                         // Execute the stored procedure within the transaction
                         await connection.ExecuteAsync("insertsalesorder", 

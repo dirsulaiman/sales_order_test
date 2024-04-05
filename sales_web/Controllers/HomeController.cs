@@ -18,7 +18,10 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         List<Customer> customers = await _requestService.Get<List<Customer>>("api/customer");
-        List<Product> products = await _requestService.Get<List<Product>>("api/product");
+        List<Product> products = await _requestService.Get<List<Product>>("api/product", new Dictionary<string, string>()
+        {
+            { "withPrices", "true" }
+        });
         ViewBag.customers = customers;
         ViewBag.products = products;
         return View();
@@ -39,6 +42,7 @@ public class HomeController : Controller
             
             // Set success notification message
             TempData["NotificationMessage"] = "Data has been insert successfully.";
+            TempData["NotificationStatus"] = "success";
             
             // Redirect to another action method
             return RedirectToAction("Index", "Home");
@@ -47,15 +51,11 @@ public class HomeController : Controller
         {
             // Set error notification message
             TempData["NotificationMessage"] = "An error occurred: " + ex.Message;
+            TempData["NotificationStatus"] = "error";
             
             // Redirect to another action method
             return RedirectToAction("Index", "Home");
         }
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,13 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var notificationMessage = TempData["NotificationMessage"] as string;
+    var notificationStatus = TempData["NotificationStatus"] as string;
 }
 
 <div class="container">
   <h3>Form Sales Order</h3>
-  <form>
+  <form method="post" asp-action="SubmitForm" asp-controller="Home" class="mb-3">
     <div class="mb-3">
       <label class="form-label">Customer</label>
-      <select class="form-select" >
+      <select class="form-select" name="CustCode">
         <option selected disabled="disabled">-</option>
         @foreach (var customer in ViewBag.customers ?? new List<Customer>())
         {
@@ -18,24 +20,45 @@
     
     <div class="mb-3">
       <label class="form-label">Product</label>
-      <select class="form-select" >
+      <select id="select_product" class="form-select" name="ProductCode">
         <option selected disabled="disabled">-</option>
         @foreach (var product in ViewBag.products ?? new List<Product>())
         {
           // bool isDisable = product?.Prices == null || product?.Prices?.Count == 0;
-          <option value="@product?.ProductCode" >@product?.ProductName</option>
+          decimal? price = product?.Prices?.Count > 0 ? product?.Prices[0]?.PriceValue : null;
+          <option value="@product?.ProductCode" data-price="@price">@product?.ProductName</option>
         }
       </select>
     </div>
     
     <div class="mb-3">
       <label class="form-label">Price</label>
-      <input type="number" class="form-control">
+      <input id="product_price" type="number" disabled="" class="form-control">
+      <input name="Price" type="hidden" class="form-control">
     </div>
+    
     <div class="mb-3">
       <label class="form-label">Quantity</label>
-      <input type="number" class="form-control">
+      <input name="Qty" type="number" class="form-control" min="0">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
+  
+  
 </div>
+
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+  // TODO: show sweet alert
+  <div class="alert @(notificationStatus == "error" ? "alert-danger" : "alert-primary")" role="alert">
+    @(notificationMessage)
+  </div>
+}
+
+<script>
+  const el = document.getElementById("select_product");
+  el.addEventListener("change", () => {
+    const productPrice = document.querySelector("#select_product option:checked")?.dataset?.price;
+    document.getElementById('product_price').value = productPrice;
+  })
+</script>
