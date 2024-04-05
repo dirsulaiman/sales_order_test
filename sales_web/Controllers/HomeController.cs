@@ -1,21 +1,56 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SalesOrderWeb.Models;
+using SalesOrderWeb.Models.Params;
+using SalesOrderWeb.Services;
 
 namespace SalesOrderWeb.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private RequestService _requestService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(IConfiguration configuration)
     {
-        _logger = logger;
+        _requestService = new RequestService(configuration);
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        List<Customer> customers = await _requestService.Get<List<Customer>>("api/customer");
+        List<Product> products = await _requestService.Get<List<Product>>("api/product");
+        ViewBag.customers = customers;
+        ViewBag.products = products;
         return View();
+    }
+    
+    [HttpPost]
+    public async Task<RedirectToActionResult> SubmitForm(SalesOrderParams formData)
+    {
+        try
+        {
+            await _requestService.Post("api/salesorder", new
+            {
+                custCode = formData.CustCode,
+                productCode = formData.ProductCode,
+                qty = formData.Qty,
+                price = formData.Price
+            });
+            
+            // Set success notification message
+            TempData["NotificationMessage"] = "Data has been insert successfully.";
+            
+            // Redirect to another action method
+            return RedirectToAction("Index", "Home");
+        }
+        catch (Exception ex)
+        {
+            // Set error notification message
+            TempData["NotificationMessage"] = "An error occurred: " + ex.Message;
+            
+            // Redirect to another action method
+            return RedirectToAction("Index", "Home");
+        }
     }
 
     public IActionResult Privacy()
