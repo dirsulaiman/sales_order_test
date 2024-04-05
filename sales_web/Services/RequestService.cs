@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 
 namespace SalesOrderWeb.Services
@@ -14,11 +15,12 @@ namespace SalesOrderWeb.Services
             _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("BaseSalesApi"));
         }
         
-        public async Task<T> Get<T>(string path)
+        public async Task<T> Get<T>(string path, Dictionary<string, string> queryParams = null)
         {
             try
             {
-                string endpoint = path;
+                string endpoint = queryParams != null ? QueryHelpers.AddQueryString(path, queryParams) : path;
+                
                 // Send GET request and read response
                 HttpResponseMessage response = await _httpClient.GetAsync(endpoint);
 
