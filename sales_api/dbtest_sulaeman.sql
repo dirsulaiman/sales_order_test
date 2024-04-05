@@ -22,7 +22,7 @@ SET row_security = off;
 
 CREATE FUNCTION public.generate_sales_order_no() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
+AS $$
 BEGIN
     NEW."SalesOrderNo" := CONCAT('SO', LPAD(nextval('sales_order_sequence')::text, 4, '0'));
     RETURN NEW;
@@ -38,19 +38,19 @@ ALTER FUNCTION public.generate_sales_order_no() OWNER TO test;
 
 CREATE FUNCTION public.insert_sales_order_interface() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
+AS $$
 BEGIN
     -- Construct JSON object for the payload
     INSERT INTO "SalesOrderInterface" ("SalesOrderNo", "Payload")
-    VALUES (NEW."SalesOrderNo", 
+    VALUES (NEW."SalesOrderNo",
             jsonb_build_object(
-                'SalesOrderNo', NEW."SalesOrderNo",
-                'CustId', NEW."CustCode",
-                'OrderDetail', jsonb_build_array(
-                                jsonb_build_object('ProductCode', NEW."ProductCode", 'Qty', NEW."Qty")
-                            )
+                    'SalesOrderNo', NEW."SalesOrderNo",
+                    'CustId', NEW."CustCode",
+                    'OrderDetail', jsonb_build_array(
+                            jsonb_build_object('ProductCode', NEW."ProductCode", 'Qty', NEW."Qty")
+                                   )
             ));
-    
+
     RETURN NEW;
 END;
 $$;
@@ -64,10 +64,10 @@ ALTER FUNCTION public.insert_sales_order_interface() OWNER TO test;
 
 CREATE PROCEDURE public.insertsalesorder(IN p_order_date timestamp, IN p_cust_code character varying, IN p_product_code character varying, IN p_qty integer, IN p_price numeric)
     LANGUAGE plpgsql
-    AS $$
+AS $$
 BEGIN
-INSERT INTO "SalesOrder" ("OrderDate", "CustCode", "ProductCode", "Qty", "Price")
-VALUES (p_order_date, p_cust_code, p_product_code, p_qty, p_price);
+    INSERT INTO "SalesOrder" ("OrderDate", "CustCode", "ProductCode", "Qty", "Price")
+    VALUES (p_order_date, p_cust_code, p_product_code, p_qty, p_price);
 END;
 $$;
 
@@ -83,8 +83,8 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public."Customer" (
-    "CustId" integer NOT NULL,
-    "CustName" character varying(50)
+                                   "CustId" integer NOT NULL,
+                                   "CustName" character varying(50)
 );
 
 
@@ -117,11 +117,11 @@ ALTER SEQUENCE public."Customer_CustId_seq" OWNED BY public."Customer"."CustId";
 --
 
 CREATE TABLE public."Price" (
-    "PriceId" integer NOT NULL,
-    "ProductCode" character varying(10),
-    "Price" numeric,
-    "PriceValidateFrom" date,
-    "PriceValidateTo" date
+                                "PriceId" integer NOT NULL,
+                                "ProductCode" character varying(10),
+                                "Price" numeric,
+                                "PriceValidateFrom" date,
+                                "PriceValidateTo" date
 );
 
 
@@ -154,8 +154,8 @@ ALTER SEQUENCE public."Price_PriceId_seq" OWNED BY public."Price"."PriceId";
 --
 
 CREATE TABLE public."Product" (
-    "ProductCode" character varying(10) NOT NULL,
-    "ProductName" character varying(255)
+                                  "ProductCode" character varying(10) NOT NULL,
+                                  "ProductName" character varying(255)
 );
 
 
@@ -166,12 +166,12 @@ ALTER TABLE public."Product" OWNER TO test;
 --
 
 CREATE TABLE public."SalesOrder" (
-    "SalesOrderNo" character varying(10) NOT NULL,
-    "OrderDate" timestamp NOT NULL,
-    "CustCode" character varying(10),
-    "ProductCode" character varying(10),
-    "Qty" integer NOT NULL,
-    "Price" numeric NOT NULL
+                                     "SalesOrderNo" character varying(10) NOT NULL,
+                                     "OrderDate" timestamp NOT NULL,
+                                     "CustCode" character varying(10),
+                                     "ProductCode" character varying(10),
+                                     "Qty" integer NOT NULL,
+                                     "Price" numeric NOT NULL
 );
 
 
@@ -182,8 +182,8 @@ ALTER TABLE public."SalesOrder" OWNER TO test;
 --
 
 CREATE TABLE public."SalesOrderInterface" (
-    "SalesOrderNo" character varying(10) NOT NULL,
-    "Payload" json
+                                              "SalesOrderNo" character varying(10) NOT NULL,
+                                              "Payload" json
 );
 
 
@@ -233,8 +233,8 @@ COPY public."Customer" ("CustId", "CustName") FROM stdin;
 --
 
 COPY public."Price" ("PriceId", "ProductCode", "Price", "PriceValidateFrom", "PriceValidateTo") FROM stdin;
-1	st002	55000	2023-01-01	2024-01-01
 2	st002	60000	2023-12-10	2024-08-01
+1	st002	55000	2023-01-01	2024-11-12
 \.
 
 
@@ -255,6 +255,7 @@ eg002	Steelbuds
 --
 
 COPY public."SalesOrder" ("SalesOrderNo", "OrderDate", "CustCode", "ProductCode", "Qty", "Price") FROM stdin;
+SO0015	2024-04-05 00:00:00	2	eg001	1	1.0
 \.
 
 
@@ -263,6 +264,7 @@ COPY public."SalesOrder" ("SalesOrderNo", "OrderDate", "CustCode", "ProductCode"
 --
 
 COPY public."SalesOrderInterface" ("SalesOrderNo", "Payload") FROM stdin;
+SO0015	{"CustId": "2", "OrderDetail": [{"Qty": 1, "ProductCode": "eg001"}], "SalesOrderNo": "SO0015"}
 \.
 
 
@@ -284,7 +286,7 @@ SELECT pg_catalog.setval('public."Price_PriceId_seq"', 2, true);
 -- Name: sales_order_sequence; Type: SEQUENCE SET; Schema: public; Owner: test
 --
 
-SELECT pg_catalog.setval('public.sales_order_sequence', 14, true);
+SELECT pg_catalog.setval('public.sales_order_sequence', 15, true);
 
 
 --
